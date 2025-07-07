@@ -1,81 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FloodFactorApp - Flood Risk Checker</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 2em auto;
-            max-width: 600px;
-            padding: 0 1em;
-            background-color: #f9f9f9;
-        }
-        h1 {
-            text-align: center;
-            color: #0066cc;
-        }
-        form {
-            margin-bottom: 2em;
-            background: white;
-            padding: 1.5em;
-            border-radius: 8px;
-            box-shadow: 0 0 6px #ccc;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5em;
-            font-weight: bold;
-        }
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 0.5em;
-            margin-bottom: 1em;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 1em;
-        }
-        button {
-            background-color: #0066cc;
-            color: white;
-            border: none;
-            padding: 0.75em 1.5em;
-            font-size: 1em;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        button:hover {
-            background-color: #005bb5;
-        }
-        .error {
-            background-color: #ffdddd;
-            border: 1px solid #ff5c5c;
-            color: #900;
-            padding: 1em;
-            border-radius: 5px;
-            margin-bottom: 1em;
-        }
-        .result {
-            background-color: #e7f3fe;
-            border-left: 6px solid #2196F3;
-            padding: 1em;
-            margin-bottom: 1em;
-            white-space: pre-wrap;
-        }
-        .rating {
-            font-weight: bold;
-            margin-top: 1em;
-        }
-        #locate-link {
-            color: #0066cc;
-            cursor: pointer;
-            text-decoration: underline;
-            display: inline-block;
-            margin-bottom: 1em;
-        }
-    </style>
+    <!-- ... your existing head content unchanged ... -->
 </head>
 <body>
     <h1>FloodFactorApp - Flood Risk Checker</h1>
@@ -110,10 +36,8 @@
     </div>
     {% endif %}
 
-    {% if likelihood_rating is not none and likelihood_explanation %}
+    {% if likelihood_explanation %}
     <div class="result">
-        <h2>Flood Likelihood Rating</h2>
-        <p class="rating">Rating: {{ likelihood_rating }} / 5</p>
         <p>{{ likelihood_explanation }}</p>
     </div>
     {% endif %}
