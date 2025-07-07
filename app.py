@@ -4,6 +4,7 @@ import os
 import sys
 import requests
 import re
+from web import run  # For internet search
 
 print(f"Starting FloodFactorApp in process id: {os.getpid()}, args: {sys.argv}")
 
@@ -11,10 +12,6 @@ app = Flask(__name__)
 
 # Your OpenAI API key setup
 openai.api_key = os.getenv("OPENAI_API_KEY") or "your-api-key-here"
-
-# Google Custom Search API setup (set as environment variables or replace here)
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or "your-google-api-key-here"
-GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID") or "your-google-cse-id-here"
 
 def get_fema_flood_data(lat, lon):
     try:
@@ -46,31 +43,12 @@ def get_fema_flood_data(lat, lon):
 def clean_markdown(text):
     if not text:
         return ""
+    # Remove markdown syntax: ###, **, *, -, etc.
     text = re.sub(r'###\s*', '', text)
     text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
     text = re.sub(r'^\s*-\s*', '', text, flags=re.MULTILINE)
-    text = re.sub(r'\n{2,}', '\n\n', text)
+    text = re.sub(r'\n{2,}', '\n\n', text)  # Clean up excessive spacing
     return text.strip()
-
-def google_search(query, num_results=10):
-    """Perform a Google Custom Search and return titles of search results."""
-    search_url = "https://www.googleapis.com/customsearch/v1"
-    params = {
-        "key": GOOGLE_API_KEY,
-        "cx": GOOGLE_CSE_ID,
-        "q": query,
-        "num": num_results,
-    }
-    try:
-        resp = requests.get(search_url, params=params)
-        resp.raise_for_status()
-        results = resp.json()
-        items = results.get("items", [])
-        titles = [item.get("title") for item in items if "title" in item]
-        return titles
-    except Exception as e:
-        print(f"Google Search API error: {e}")
-        return []
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -95,7 +73,6 @@ def index():
         # Fetch FEMA flood data
         fema_data = get_fema_flood_data(lat, lon)
 
-        # Compose base explanation prompt
         if not fema_data:
             base_prompt = (
                 f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet, "
@@ -125,44 +102,56 @@ def index():
             error = f"OpenAI API error (explanation): {e}"
             return render_template("index.html", explanation=None, error=error)
 
-        # Search recent flood news near location
-        search_query = f"historical flood events near {lat},{lon}"
-        titles = google_search(search_query, num_results=10)
-        event_count = len(titles)
-
-        # Compose likelihood prompt
-        likelihood_prompt = (
-            f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
-            f"FEMA flood zone: {fema_data['flood_zone'] if fema_data else 'unknown'}.\n"
-            f"Base Flood Elevation (BFE): {fema_data['bfe'] if fema_data else 'unknown'} feet.\n"
-            f"Special Flood Hazard Area: {'Yes' if fema_data and fema_data['sfha'] == 'T' else 'No or unknown'}.\n\n"
-            f"Below are {event_count} historical flood-related news articles about this location:\n" +
-            "\n".join(f"- {title}" for title in titles) +
-            "\n\nBased on these real flood events and the given flood depth, rate the likelihood of such a flood occurring on a scale from 0 to 5 where:\n"
-            "0 = Highly unlikely\n"
-            "1 = Unlikely\n"
-            "2 = Possible\n"
-            "3 = Likely\n"
-            "4 = Highly likely\n"
-            "5 = Definitive\n\n"
-            "Return ONLY the number rating (0-5), followed by a brief explanation (1-2 sentences). Format your response as:\n"
-            "Rating: X\nExplanation: your explanation here"
-        )
-
+        # --- New: Search recent flood news to inform likelihood rating ---
         try:
+            search_results = run({
+                "search_query": [
+                    {
+                        "q": f"historical flood events near {lat},{lon}",
+                        "recency": 3650,  # last 10 years approx.
+                        "domains": None
+                    }
+                ]
+            })
+
+            titles = [res["title"] for res in search_results.get("search_query_results", [])]
+            unique_titles = list(set(titles[:10]))  # Take up to 10 unique titles
+            event_count = len(unique_titles)
+
+            likelihood_prompt = (
+                f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
+                f"FEMA flood zone: {fema_data['flood_zone'] if fema_data else 'unknown'}.\n"
+                f"Base Flood Elevation (BFE): {fema_data['bfe'] if fema_data else 'unknown'} feet.\n"
+                f"Special Flood Hazard Area: {'Yes' if fema_data and fema_data['sfha'] == 'T' else 'No or unknown'}.\n\n"
+                f"Below are {event_count} historical flood-related news articles about this location:\n"
+                + "\n".join(f"- {title}" for title in unique_titles) +
+                "\n\nBased on these real flood events and the given flood depth, rate the likelihood of such a flood occurring on a scale from 0 to 5 where:\n"
+                "0 = Highly unlikely\n"
+                "1 = Unlikely\n"
+                "2 = Possible\n"
+                "3 = Likely\n"
+                "4 = Highly likely\n"
+                "5 = Definitive\n\n"
+                "Return ONLY the number rating (0-5), followed by a brief explanation (1-2 sentences). Format your response as:\n"
+                "Rating: X\nExplanation: your explanation here"
+            )
+
             response2 = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": likelihood_prompt}],
                 temperature=0,
                 max_tokens=150,
             )
+
             rating_text = response2.choices[0].message.content.strip()
             rating_match = re.search(r"Rating:\s*([0-5])", rating_text)
             explanation_match = re.search(r"Explanation:\s*(.*)", rating_text, re.DOTALL)
+
             if rating_match:
                 likelihood_rating = int(rating_match.group(1))
             if explanation_match:
                 likelihood_explanation = clean_markdown(explanation_match.group(1).strip())
+
         except Exception as e:
             error = f"OpenAI API error (likelihood): {e}"
 
@@ -174,8 +163,10 @@ def index():
         likelihood_explanation=likelihood_explanation,
     )
 
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print(f"Running app on 0.0.0.0:{port} in process id: {os.getpid()}")
     app.run(host="0.0.0.0", port=port)
+
 
