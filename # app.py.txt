@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request
 import openai
 import os
+import sys
+
+print(f"Starting FloodFactorApp in process id: {os.getpid()}, args: {sys.argv}")
 
 app = Flask(__name__)
 
@@ -30,7 +33,7 @@ def index():
     explanation = None
     error = None
     if request.method == "POST":
-        zip_code = request.form.get("zip_code")  # <-- This must be exactly this line
+        zip_code = request.form.get("zip_code")
         data = flood_data.get(zip_code)
         if data:
             explanation = generate_flood_risk_text(zip_code, data["depth"], data["probability"])
@@ -39,5 +42,7 @@ def index():
     return render_template("index.html", explanation=explanation, error=error)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"Running app on 0.0.0.0:{port} in process id: {os.getpid()}")
+    app.run(host="0.0.0.0", port=port)
 

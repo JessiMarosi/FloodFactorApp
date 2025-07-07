@@ -18,7 +18,7 @@
             color: #333;
         }
         .container {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             width: 400px;
@@ -28,6 +28,10 @@
             text-align: center;
             color: #005f99;
             margin-bottom: 10px;
+            font-size: 26px;
+        }
+        h1 span {
+            color: #007acc;
         }
         p.description {
             text-align: center;
@@ -67,6 +71,9 @@
             margin-top: 25px;
             padding: 15px;
             border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.5;
         }
         .result {
             background-color: #dff0d8;
@@ -78,26 +85,38 @@
             color: #842029;
             border: 1px solid #842029;
         }
+        .note {
+            font-size: 13px;
+            color: #666;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>FloodFactor – Flood Risk Checker</h1>
+        <h1><span>FloodFactor</span> – Flood Risk Checker</h1>
         <p class="description">
             Enter your ZIP code and the expected flood depth (in feet) to get a detailed flood risk explanation.
         </p>
         <form method="POST" action="/">
             <label for="zip_code">Enter ZIP Code:</label>
-            <input type="text" id="zip_code" name="zip_code" required />
+            <input type="text" id="zip_code" name="zip_code" required aria-label="ZIP Code" />
 
             <label for="depth">Enter Flood Depth (feet):</label>
-            <input type="number" step="0.1" id="depth" name="depth" required />
+            <input type="number" step="0.1" id="depth" name="depth" required aria-label="Flood Depth" />
 
             <button type="submit">Check Flood Risk</button>
         </form>
 
         {% if explanation %}
-            <div class="result">{{ explanation }}</div>
+            <div class="result">
+                {{ explanation }}
+                {% if adjusted_depth %}
+                    <div class="note">
+                        Note: The requested depth exceeds the known modeled depth for this ZIP code. Explanation is based on known data.
+                    </div>
+                {% endif %}
+            </div>
         {% endif %}
 
         {% if error %}
@@ -106,3 +125,4 @@
     </div>
 </body>
 </html>
+
