@@ -3,6 +3,7 @@ import openai
 import os
 import sys
 import requests
+import re
 
 print(f"Starting FloodFactorApp in process id: {os.getpid()}, args: {sys.argv}")
 
@@ -42,6 +43,8 @@ def get_fema_flood_data(lat, lon):
 def index():
     explanation = None
     error = None
+    likelihood_rating = None
+    likelihood_explanation = None
 
     if request.method == "POST":
         lat_str = request.form.get("latitude", "").strip()
@@ -59,14 +62,14 @@ def index():
         fema_data = get_fema_flood_data(lat, lon)
 
         if not fema_data:
-            prompt = (
+            base_prompt = (
                 f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet, "
                 "but no FEMA zone data was found for this location. "
                 "Please explain what a flood depth of this magnitude might typically mean in simple terms, "
                 "including potential impacts on homes, safety, and travel."
             )
         else:
-            prompt = (
+            base_prompt = (
                 f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
                 f"The FEMA flood zone for this area is {fema_data['flood_zone']}.\n"
                 f"Base Flood Elevation (BFE): {fema_data['bfe']} ft.\n"
@@ -74,19 +77,64 @@ def index():
                 "Explain what this means in simple terms, including impacts on homes, safety, and how serious this flood depth would be in this area."
             )
 
+        # Get detailed explanation
         try:
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
+                messages=[{"role": "user", "content": base_prompt}],
                 temperature=0.7,
                 max_tokens=500,
             )
             explanation = response.choices[0].message.content.strip()
         except Exception as e:
-            error = f"OpenAI API error: {e}"
+            error = f"OpenAI API error (explanation): {e}"
+            return render_template("index.html", explanation=None, error=error)
 
-    return render_template("index.html", explanation=explanation, error=error)
+        # Prompt AI for likelihood rating 0-5 with definitions
+        likelihood_prompt = (
+            f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
+            f"FEMA flood zone: {fema_data['flood_zone'] if fema_data else 'unknown'}.\n"
+            f"Base Flood Elevation (BFE): {fema_data['bfe'] if fema_data else 'unknown'} feet.\n"
+            f"Special Flood Hazard Area: {'Yes' if fema_data and fema_data['sfha']=='T' else 'No or unknown'}.\n\n"
+            "Based on typical historical flood data and flood zone characteristics, estimate the likelihood of this flood depth occurring, using a scale from 0 to 5, where:\n"
+            "0 = Highly unlikely\n"
+            "1 = Unlikely\n"
+            "2 = Possible\n"
+            "3 = Likely\n"
+            "4 = Highly likely\n"
+            "5 = Definitive\n\n"
+            "Return ONLY the number rating (0-5), followed by a short explanation (1-2 sentences). Format your response as:\n"
+            "Rating: X\nExplanation: your text here"
+        )
 
+        try:
+            response2 = openai.ChatCompletion.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": likelihood_prompt}],
+                temperature=0,
+                max_tokens=150,
+            )
+            rating_text = response2.choices[0].message.content.strip()
+
+            # Parse rating number and explanation from AI response
+            rating_match = re.search(r"Rating:\s*([0-5])", rating_text)
+            explanation_match = re.search(r"Explanation:\s*(.*)", rating_text, re.DOTALL)
+
+            if rating_match:
+                likelihood_rating = int(rating_match.group(1))
+            if explanation_match:
+                likelihood_explanation = explanation_match.group(1).strip()
+
+        except Exception as e:
+            error = f"OpenAI API error (likelihood): {e}"
+
+    return render_template(
+        "index.html",
+        explanation=explanation,
+        error=error,
+        likelihood_rating=likelihood_rating,
+        likelihood_explanation=likelihood_explanation,
+    )
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

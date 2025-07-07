@@ -105,11 +105,26 @@
       color: #b22222;
       font-weight: 600;
     }
+
+    /* Likelihood rating style */
+    .likelihood {
+      margin-top: 20px;
+      background: #dceeff;
+      padding: 15px;
+      border-radius: 8px;
+      color: #003366;
+      text-align: left;
+      box-shadow: inset 0 0 10px rgba(30, 144, 255, 0.3);
+    }
+    .likelihood h3 {
+      margin-top: 0;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>FloodFactorApp - Flood Risk Checker</h1>
+    <h1>FloodFactorApp - Flood Facts for Your Area</h1>
 
     <p>
       Need your coordinates? Use this tool: 
@@ -126,13 +141,20 @@
       <label for="depth">Flood Depth (feet):</label>
       <input type="number" id="depth" name="depth" step="0.1" placeholder="e.g. 5.0" required />
 
-      <button type="submit">Check Flood Risk</button>
+      <button type="submit">Get the Facts Now!</button>
     </form>
 
     {% if explanation %}
       <div class="explanation">
         <h2>Flood Risk Explanation:</h2>
         <p>{{ explanation | safe }}</p>
+      </div>
+    {% endif %}
+
+    {% if likelihood_rating is not none %}
+      <div class="likelihood">
+        <h3>Flood Likelihood Rating: {{ likelihood_rating }} / 5</h3>
+        <p>{{ likelihood_explanation }}</p>
       </div>
     {% endif %}
 
