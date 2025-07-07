@@ -1,128 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FloodFactor – Flood Risk Checker</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #87ceeb 0%, #ffffff 100%);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding-top: 50px;
-            color: #333;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            width: 400px;
-            padding: 30px;
-        }
-        h1 {
-            text-align: center;
-            color: #005f99;
-            margin-bottom: 10px;
-            font-size: 26px;
-        }
-        h1 span {
-            color: #007acc;
-        }
-        p.description {
-            text-align: center;
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 25px;
-        }
-        form label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-        form input[type="text"],
-        form input[type="number"] {
-            width: 100%;
-            padding: 8px 10px;
-            margin-bottom: 20px;
-            border: 1px solid #aaa;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-        form button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007acc;
-            border: none;
-            border-radius: 6px;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        form button:hover {
-            background-color: #005f99;
-        }
-        .result, .error {
-            margin-top: 25px;
-            padding: 15px;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            line-height: 1.5;
-        }
-        .result {
-            background-color: #dff0d8;
-            color: #3c763d;
-            border: 1px solid #3c763d;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #842029;
-            border: 1px solid #842029;
-        }
-        .note {
-            font-size: 13px;
-            color: #666;
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>FloodFactorApp</title>
+  <style>
+    /* Background gradient: bright blue sky */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #87CEEB, #4682B4);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* White translucent container */
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      color: #222;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #004080;
+      font-weight: 700;
+    }
+
+    p a {
+      color: #004080;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    p a:hover {
+      text-decoration: underline;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      text-align: left;
+      color: #004080;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1.5px solid #004080;
+      border-radius: 6px;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #1E90FF;
+      box-shadow: 0 0 8px #1E90FF;
+    }
+
+    button {
+      margin-top: 25px;
+      background-color: #004080;
+      color: white;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #1E90FF;
+    }
+
+    .explanation {
+      margin-top: 30px;
+      background: #f0f8ff;
+      padding: 15px;
+      border-radius: 8px;
+      color: #004080;
+      text-align: left;
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: inset 0 0 10px rgba(30, 144, 255, 0.2);
+    }
+
+    .error {
+      margin-top: 20px;
+      color: #b22222;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1><span>FloodFactor</span> – Flood Risk Checker</h1>
-        <p class="description">
-            Enter your ZIP code and the expected flood depth (in feet) to get a detailed flood risk explanation.
-        </p>
-        <form method="POST" action="/">
-            <label for="zip_code">Enter ZIP Code:</label>
-            <input type="text" id="zip_code" name="zip_code" required aria-label="ZIP Code" />
+  <div class="container">
+    <h1>FloodFactorApp - Flood Risk Checker</h1>
 
-            <label for="depth">Enter Flood Depth (feet):</label>
-            <input type="number" step="0.1" id="depth" name="depth" required aria-label="Flood Depth" />
+    <p>
+      Need your coordinates? Use this tool: 
+      <a href="https://www.latlong.net/" target="_blank" rel="noopener noreferrer">Find Latitude & Longitude</a>
+    </p>
 
-            <button type="submit">Check Flood Risk</button>
-        </form>
+    <form method="post" novalidate>
+      <label for="latitude">Latitude:</label>
+      <input type="text" id="latitude" name="latitude" placeholder="e.g. 27.9506" required />
 
-        {% if explanation %}
-            <div class="result">
-                {{ explanation }}
-                {% if adjusted_depth %}
-                    <div class="note">
-                        Note: The requested depth exceeds the known modeled depth for this ZIP code. Explanation is based on known data.
-                    </div>
-                {% endif %}
-            </div>
-        {% endif %}
+      <label for="longitude">Longitude:</label>
+      <input type="text" id="longitude" name="longitude" placeholder="e.g. -82.4572" required />
 
-        {% if error %}
-            <div class="error">{{ error }}</div>
-        {% endif %}
-    </div>
+      <label for="depth">Flood Depth (feet):</label>
+      <input type="number" id="depth" name="depth" step="0.1" placeholder="e.g. 5.0" required />
+
+      <button type="submit">Check Flood Risk</button>
+    </form>
+
+    {% if explanation %}
+      <div class="explanation">
+        <h2>Flood Risk Explanation:</h2>
+        <p>{{ explanation | safe }}</p>
+      </div>
+    {% endif %}
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+  </div>
 </body>
 </html>
 
