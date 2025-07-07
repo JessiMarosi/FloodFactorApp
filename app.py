@@ -4,6 +4,7 @@ import os
 import sys
 import requests
 import re
+from web import run  # for internet search
 
 print(f"Starting FloodFactorApp in process id: {os.getpid()}, args: {sys.argv}")
 
@@ -69,8 +70,10 @@ def index():
             error = "Please enter valid numbers for latitude, longitude, and flood depth."
             return render_template("index.html", explanation=None, error=error)
 
+        # Get FEMA flood data
         fema_data = get_fema_flood_data(lat, lon)
 
+        # Generate flood facts explanation prompt
         if not fema_data:
             base_prompt = (
                 f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet, "
@@ -100,24 +103,40 @@ def index():
             error = f"OpenAI API error (explanation): {e}"
             return render_template("index.html", explanation=None, error=error)
 
-        likelihood_prompt = (
-            f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
-            f"FEMA flood zone: {fema_data['flood_zone'] if fema_data else 'unknown'}.\n"
-            f"Base Flood Elevation (BFE): {fema_data['bfe'] if fema_data else 'unknown'} feet.\n"
-            f"Special Flood Hazard Area: {'Yes' if fema_data and fema_data['sfha']=='T' else 'No or unknown'}.\n\n"
-            "Based on typical historical flood data and flood zone characteristics, estimate the likelihood of this flood depth occurring, using a scale from 0 to 5, where:\n"
-            "0 = Highly unlikely\n1 = Unlikely\n2 = Possible\n3 = Likely\n4 = Highly likely\n5 = Definitive\n\n"
-            "Return ONLY the number rating (0-5), followed by a short explanation (1-2 sentences). Format your response as:\n"
-            "Rating: X\nExplanation: your text here"
-        )
-
+        # Use web search to find historical flood events nearby for better likelihood rating
         try:
+            search_results = run({
+                "search_query": [
+                    {
+                        "q": f"historical flood events near {lat},{lon}",
+                        "recency": 3650,  # approx 10 years
+                    }
+                ]
+            })
+
+            titles = [res["title"] for res in search_results.get("search_query_results", [])]
+            unique_titles = list(set(titles[:10]))
+            event_count = len(unique_titles)
+
+            likelihood_prompt = (
+                f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
+                f"FEMA flood zone: {fema_data['flood_zone'] if fema_data else 'unknown'}.\n"
+                f"Base Flood Elevation (BFE): {fema_data['bfe'] if fema_data else 'unknown'} feet.\n"
+                f"Special Flood Hazard Area: {'Yes' if fema_data and fema_data['sfha'] == 'T' else 'No or unknown'}.\n\n"
+                f"Below are {event_count} recent flood-related news article titles near this location:\n"
+                + "\n".join(f"- {title}" for title in unique_titles) +
+                "\n\nBased on these events and the flood depth, rate the likelihood of such a flood occurring from 0 (Highly unlikely) to 5 (Definitive).\n"
+                "Return ONLY the number rating and a brief explanation.\n"
+                "Format:\nRating: X\nExplanation: your text here"
+            )
+
             response2 = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": likelihood_prompt}],
                 temperature=0,
                 max_tokens=150,
             )
+
             rating_text = response2.choices[0].message.content.strip()
             rating_match = re.search(r"Rating:\s*([0-5])", rating_text)
             explanation_match = re.search(r"Explanation:\s*(.*)", rating_text, re.DOTALL)
