@@ -4,7 +4,6 @@ import os
 import sys
 import requests
 import re
-from web import run  # For internet search
 
 print(f"Starting FloodFactorApp in process id: {os.getpid()}, args: {sys.argv}")
 
@@ -12,6 +11,10 @@ app = Flask(__name__)
 
 # Your OpenAI API key setup
 openai.api_key = os.getenv("OPENAI_API_KEY") or "your-api-key-here"
+
+# Google Custom Search API setup
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or "your-google-api-key-here"
+GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID") or "your-google-cse-id-here"
 
 def get_fema_flood_data(lat, lon):
     try:
@@ -43,12 +46,30 @@ def get_fema_flood_data(lat, lon):
 def clean_markdown(text):
     if not text:
         return ""
-    # Remove markdown syntax: ###, **, *, -, etc.
     text = re.sub(r'###\s*', '', text)
     text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
     text = re.sub(r'^\s*-\s*', '', text, flags=re.MULTILINE)
     text = re.sub(r'\n{2,}', '\n\n', text)  # Clean up excessive spacing
     return text.strip()
+
+def google_search(query, num_results=10):
+    search_url = "https://www.googleapis.com/customsearch/v1"
+    params = {
+        "key": GOOGLE_API_KEY,
+        "cx": GOOGLE_CSE_ID,
+        "q": query,
+        "num": num_results,
+    }
+    try:
+        resp = requests.get(search_url, params=params)
+        resp.raise_for_status()
+        results = resp.json()
+        items = results.get("items", [])
+        titles = [item.get("title") for item in items if "title" in item]
+        return titles
+    except Exception as e:
+        print(f"Google Search API error: {e}")
+        return []
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -102,20 +123,11 @@ def index():
             error = f"OpenAI API error (explanation): {e}"
             return render_template("index.html", explanation=None, error=error)
 
-        # --- New: Search recent flood news to inform likelihood rating ---
+        # Use Google Search API for recent flood news titles
         try:
-            search_results = run({
-                "search_query": [
-                    {
-                        "q": f"historical flood events near {lat},{lon}",
-                        "recency": 3650,  # last 10 years approx.
-                        "domains": None
-                    }
-                ]
-            })
-
-            titles = [res["title"] for res in search_results.get("search_query_results", [])]
-            unique_titles = list(set(titles[:10]))  # Take up to 10 unique titles
+            search_query = f"historical flood events near {lat},{lon}"
+            titles = google_search(search_query, num_results=10)
+            unique_titles = list(set(titles[:10]))
             event_count = len(unique_titles)
 
             likelihood_prompt = (
