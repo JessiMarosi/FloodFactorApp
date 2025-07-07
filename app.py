@@ -4,14 +4,15 @@ import os
 import sys
 import requests
 import re
-from web import run  # for internet search
 
 print(f"Starting FloodFactorApp in process id: {os.getpid()}, args: {sys.argv}")
 
 app = Flask(__name__)
 
-# Your OpenAI API key setup
+# API keys from env variables
 openai.api_key = os.getenv("OPENAI_API_KEY") or "your-api-key-here"
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or "your-google-api-key"
+GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID") or "your-google-cse-id"
 
 def get_fema_flood_data(lat, lon):
     try:
@@ -50,6 +51,46 @@ def clean_markdown(text):
     text = re.sub(r'\n{2,}', '\n\n', text)  # Clean up excessive spacing
     return text.strip()
 
+def reverse_geocode(lat, lon):
+    # Use OpenStreetMap's Nominatim API (free) to get place name (county, city, etc.)
+    try:
+        url = "https://nominatim.openstreetmap.org/reverse"
+        params = {
+            "format": "json",
+            "lat": lat,
+            "lon": lon,
+            "zoom": 10,  # zoom level for county/region level
+            "addressdetails": 1,
+        }
+        resp = requests.get(url, params=params, headers={"User-Agent": "FloodFactorApp/1.0"})
+        data = resp.json()
+        address = data.get("address", {})
+        county = address.get("county") or address.get("state_district") or address.get("state") or ""
+        city = address.get("city") or address.get("town") or address.get("village") or ""
+        place_name = county or city or ""
+        return place_name
+    except Exception as e:
+        print(f"Reverse geocode error: {e}")
+        return ""
+
+def google_search(query, api_key, cse_id, num=5):
+    try:
+        url = "https://www.googleapis.com/customsearch/v1"
+        params = {
+            "q": query,
+            "key": api_key,
+            "cx": cse_id,
+            "num": num,
+            "sort": "date",  # try to get recent results
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
+        items = data.get("items", [])
+        return items
+    except Exception as e:
+        print(f"Google search error: {e}")
+        return []
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     explanation = None
@@ -70,10 +111,8 @@ def index():
             error = "Please enter valid numbers for latitude, longitude, and flood depth."
             return render_template("index.html", explanation=None, error=error)
 
-        # Get FEMA flood data
         fema_data = get_fema_flood_data(lat, lon)
 
-        # Generate flood facts explanation prompt
         if not fema_data:
             base_prompt = (
                 f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet, "
@@ -103,40 +142,44 @@ def index():
             error = f"OpenAI API error (explanation): {e}"
             return render_template("index.html", explanation=None, error=error)
 
-        # Use web search to find historical flood events nearby for better likelihood rating
+        # Step 1: get place name for search
+        place_name = reverse_geocode(lat, lon)
+        if not place_name:
+            place_name = f"{lat},{lon}"  # fallback to coordinates
+
+        # Step 2: perform Google search for historical flood events
+        search_query = f"historical flood events near {place_name}"
+
+        search_results = google_search(search_query, GOOGLE_API_KEY, GOOGLE_CSE_ID, num=5)
+
+        # Extract titles and snippets for AI prompt
+        snippets = []
+        for item in search_results:
+            title = item.get("title", "")
+            snippet = item.get("snippet", "")
+            snippets.append(f"{title}: {snippet}")
+
+        snippet_text = "\n".join(snippets) if snippets else "No relevant recent flood news found."
+
+        likelihood_prompt = (
+            f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
+            f"FEMA flood zone: {fema_data['flood_zone'] if fema_data else 'unknown'}.\n"
+            f"Base Flood Elevation (BFE): {fema_data['bfe'] if fema_data else 'unknown'} feet.\n"
+            f"Special Flood Hazard Area: {'Yes' if fema_data and fema_data['sfha'] == 'T' else 'No or unknown'}.\n\n"
+            f"Here are some recent flood-related news titles and snippets from that area:\n{snippet_text}\n\n"
+            "Based on this information and historical flood data, rate the likelihood of this flood depth occurring from 0 to 5:\n"
+            "0 = Highly unlikely\n1 = Unlikely\n2 = Possible\n3 = Likely\n4 = Highly likely\n5 = Definitive\n\n"
+            "Return ONLY the number rating (0-5), followed by a short explanation (1-2 sentences). Format your response as:\n"
+            "Rating: X\nExplanation: your text here"
+        )
+
         try:
-            search_results = run({
-                "search_query": [
-                    {
-                        "q": f"historical flood events near {lat},{lon}",
-                        "recency": 3650,  # approx 10 years
-                    }
-                ]
-            })
-
-            titles = [res["title"] for res in search_results.get("search_query_results", [])]
-            unique_titles = list(set(titles[:10]))
-            event_count = len(unique_titles)
-
-            likelihood_prompt = (
-                f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
-                f"FEMA flood zone: {fema_data['flood_zone'] if fema_data else 'unknown'}.\n"
-                f"Base Flood Elevation (BFE): {fema_data['bfe'] if fema_data else 'unknown'} feet.\n"
-                f"Special Flood Hazard Area: {'Yes' if fema_data and fema_data['sfha'] == 'T' else 'No or unknown'}.\n\n"
-                f"Below are {event_count} recent flood-related news article titles near this location:\n"
-                + "\n".join(f"- {title}" for title in unique_titles) +
-                "\n\nBased on these events and the flood depth, rate the likelihood of such a flood occurring from 0 (Highly unlikely) to 5 (Definitive).\n"
-                "Return ONLY the number rating and a brief explanation.\n"
-                "Format:\nRating: X\nExplanation: your text here"
-            )
-
             response2 = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": likelihood_prompt}],
                 temperature=0,
-                max_tokens=150,
+                max_tokens=200,
             )
-
             rating_text = response2.choices[0].message.content.strip()
             rating_match = re.search(r"Rating:\s*([0-5])", rating_text)
             explanation_match = re.search(r"Explanation:\s*(.*)", rating_text, re.DOTALL)
@@ -156,6 +199,7 @@ def index():
         likelihood_rating=likelihood_rating,
         likelihood_explanation=likelihood_explanation,
     )
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
