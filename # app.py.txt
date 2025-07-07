@@ -1,0 +1,43 @@
+from flask import Flask, render_template, request
+import openai
+import os
+
+app = Flask(__name__)
+
+openai.api_key = os.getenv("OPENAI_API_KEY") or "your-api-key-here"
+
+flood_data = {
+    "34609": {"depth": 4.5, "probability": 0.01},
+    "33625": {"depth": 2.3, "probability": 0.05},
+}
+
+def generate_flood_risk_text(zip_code, depth, probability):
+    prompt = (
+        f"Explain in simple terms what a flood depth of {depth} feet means for the {zip_code} zip code. "
+        f"This level of flooding has a {probability * 100:.1f}% annual chance of occurring. "
+        "Describe the impact on residents, homes, and travel, and advise on preparedness."
+    )
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+        max_tokens=200,
+    )
+    return response.choices[0].message.content.strip()
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    explanation = None
+    error = None
+    if request.method == "POST":
+        zip_code = request.form.get("zip_code")  # <-- This must be exactly this line
+        data = flood_data.get(zip_code)
+        if data:
+            explanation = generate_flood_risk_text(zip_code, data["depth"], data["probability"])
+        else:
+            error = "Sorry, no flood data available for that ZIP code."
+    return render_template("index.html", explanation=explanation, error=error)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
+

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FloodFactor – Flood Risk Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #87ceeb 0%, #ffffff 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 400px;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #005f99;
+            margin-bottom: 10px;
+        }
+        p.description {
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 25px;
+        }
+        form label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        form input[type="text"],
+        form input[type="number"] {
+            width: 100%;
+            padding: 8px 10px;
+            margin-bottom: 20px;
+            border: 1px solid #aaa;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007acc;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #005f99;
+        }
+        .result, .error {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .result {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #3c763d;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #842029;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FloodFactor – Flood Risk Checker</h1>
+        <p class="description">
+            Enter your ZIP code and the expected flood depth (in feet) to get a detailed flood risk explanation.
+        </p>
+        <form method="POST" action="/">
+            <label for="zip_code">Enter ZIP Code:</label>
+            <input type="text" id="zip_code" name="zip_code" required />
+
+            <label for="depth">Enter Flood Depth (feet):</label>
+            <input type="number" step="0.1" id="depth" name="depth" required />
+
+            <button type="submit">Check Flood Risk</button>
+        </form>
+
+        {% if explanation %}
+            <div class="result">{{ explanation }}</div>
+        {% endif %}
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
