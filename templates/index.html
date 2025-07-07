@@ -68,6 +68,13 @@
             font-weight: bold;
             margin-top: 1em;
         }
+        #locate-link {
+            color: #0066cc;
+            cursor: pointer;
+            text-decoration: underline;
+            display: inline-block;
+            margin-bottom: 1em;
+        }
     </style>
 </head>
 <body>
@@ -75,7 +82,15 @@
     {% if error %}
     <div class="error">{{ error }}</div>
     {% endif %}
-    <form method="POST" action="/">
+
+    <div id="location-prompt">
+        <p>Would you like to allow this site to auto-fill your location?</p>
+        <button id="allow-location-btn">Yes, get my location</button>
+        <span> or </span>
+        <a id="locate-link">Find my location manually</a>
+    </div>
+
+    <form method="POST" action="/" style="display:none;" id="flood-form">
         <label for="latitude">Latitude:</label>
         <input type="text" id="latitude" name="latitude" placeholder="e.g. 27.964157" required />
 
@@ -104,22 +119,38 @@
     {% endif %}
 
 <script>
-  window.onload = function() {
+  const allowBtn = document.getElementById('allow-location-btn');
+  const locateLink = document.getElementById('locate-link');
+  const form = document.getElementById('flood-form');
+  const locationPrompt = document.getElementById('location-prompt');
+
+  function showForm() {
+    locationPrompt.style.display = 'none';
+    form.style.display = 'block';
+  }
+
+  allowBtn.addEventListener('click', () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        function(position) {
+        (position) => {
           document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
           document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+          showForm();
         },
-        function(error) {
-          console.warn("Geolocation error:", error.message);
-          // Could optionally display a message or fallback here
+        (error) => {
+          alert('Unable to retrieve your location. Please enter coordinates manually.');
+          showForm();
         }
       );
     } else {
-      console.warn("Geolocation is not supported by this browser.");
+      alert('Geolocation is not supported by your browser. Please enter coordinates manually.');
+      showForm();
     }
-  };
+  });
+
+  locateLink.addEventListener('click', () => {
+    showForm();
+  });
 </script>
 </body>
 </html>
