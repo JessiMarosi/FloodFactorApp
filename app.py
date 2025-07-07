@@ -49,7 +49,7 @@ def clean_markdown(text):
     text = re.sub(r'###\s*', '', text)
     text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
     text = re.sub(r'^\s*-\s*', '', text, flags=re.MULTILINE)
-    text = re.sub(r'\n{2,}', '\n\n', text)  # Clean up excessive spacing
+    text = re.sub(r'\n{2,}', '\n\n', text)
     return text.strip()
 
 def google_search(query, num_results=10):
@@ -91,7 +91,6 @@ def index():
             error = "Please enter valid numbers for latitude, longitude, and flood depth."
             return render_template("index.html", explanation=None, error=error)
 
-        # Fetch FEMA flood data
         fema_data = get_fema_flood_data(lat, lon)
 
         if not fema_data:
@@ -123,7 +122,6 @@ def index():
             error = f"OpenAI API error (explanation): {e}"
             return render_template("index.html", explanation=None, error=error)
 
-        # Use Google Search API for recent flood news titles
         try:
             search_query = f"historical flood events near {lat},{lon}"
             titles = google_search(search_query, num_results=10)
@@ -180,5 +178,3 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print(f"Running app on 0.0.0.0:{port} in process id: {os.getpid()}")
     app.run(host="0.0.0.0", port=port)
-
-

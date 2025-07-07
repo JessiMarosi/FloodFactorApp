@@ -85,7 +85,7 @@
         <label for="depth">Flood Depth (feet):</label>
         <input type="number" step="0.1" id="depth" name="depth" placeholder="e.g. 3.5" required />
 
-        <button type="submit">Check Flood Risk</button>
+        <button type="submit">Get Flood Facts Now!</button>
     </form>
 
     {% if explanation %}
@@ -102,5 +102,24 @@
         <p>{{ likelihood_explanation }}</p>
     </div>
     {% endif %}
+
+<script>
+  window.onload = function() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
+          document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+        },
+        function(error) {
+          console.warn("Geolocation error:", error.message);
+          // Could optionally display a message or fallback here
+        }
+      );
+    } else {
+      console.warn("Geolocation is not supported by this browser.");
+    }
+  };
+</script>
 </body>
 </html>
