@@ -9,7 +9,7 @@ print(f"Starting FloodFactorApp in process id: {os.getpid()}, args: {sys.argv}")
 
 app = Flask(__name__)
 
-# Your OpenAI API key setup (set as env variable or replace below)
+# Your OpenAI API key setup
 openai.api_key = os.getenv("OPENAI_API_KEY") or "your-api-key-here"
 
 def get_fema_flood_data(lat, lon):
@@ -38,6 +38,16 @@ def get_fema_flood_data(lat, lon):
     except Exception as e:
         print(f"Error fetching FEMA flood data: {e}")
         return None
+
+def clean_markdown(text):
+    if not text:
+        return ""
+    # Remove markdown syntax: ###, **, *, -, etc.
+    text = re.sub(r'###\s*', '', text)
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+    text = re.sub(r'^\s*-\s*', '', text, flags=re.MULTILINE)
+    text = re.sub(r'\n{2,}', '\n\n', text)  # Clean up excessive spacing
+    return text.strip()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -77,7 +87,6 @@ def index():
                 "Explain what this means in simple terms, including impacts on homes, safety, and how serious this flood depth would be in this area."
             )
 
-        # Get detailed explanation
         try:
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
@@ -85,24 +94,19 @@ def index():
                 temperature=0.7,
                 max_tokens=500,
             )
-            explanation = response.choices[0].message.content.strip()
+            explanation_raw = response.choices[0].message.content.strip()
+            explanation = clean_markdown(explanation_raw)
         except Exception as e:
             error = f"OpenAI API error (explanation): {e}"
             return render_template("index.html", explanation=None, error=error)
 
-        # Prompt AI for likelihood rating 0-5 with definitions
         likelihood_prompt = (
             f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
             f"FEMA flood zone: {fema_data['flood_zone'] if fema_data else 'unknown'}.\n"
             f"Base Flood Elevation (BFE): {fema_data['bfe'] if fema_data else 'unknown'} feet.\n"
             f"Special Flood Hazard Area: {'Yes' if fema_data and fema_data['sfha']=='T' else 'No or unknown'}.\n\n"
             "Based on typical historical flood data and flood zone characteristics, estimate the likelihood of this flood depth occurring, using a scale from 0 to 5, where:\n"
-            "0 = Highly unlikely\n"
-            "1 = Unlikely\n"
-            "2 = Possible\n"
-            "3 = Likely\n"
-            "4 = Highly likely\n"
-            "5 = Definitive\n\n"
+            "0 = Highly unlikely\n1 = Unlikely\n2 = Possible\n3 = Likely\n4 = Highly likely\n5 = Definitive\n\n"
             "Return ONLY the number rating (0-5), followed by a short explanation (1-2 sentences). Format your response as:\n"
             "Rating: X\nExplanation: your text here"
         )
@@ -115,15 +119,13 @@ def index():
                 max_tokens=150,
             )
             rating_text = response2.choices[0].message.content.strip()
-
-            # Parse rating number and explanation from AI response
             rating_match = re.search(r"Rating:\s*([0-5])", rating_text)
             explanation_match = re.search(r"Explanation:\s*(.*)", rating_text, re.DOTALL)
 
             if rating_match:
                 likelihood_rating = int(rating_match.group(1))
             if explanation_match:
-                likelihood_explanation = explanation_match.group(1).strip()
+                likelihood_explanation = clean_markdown(explanation_match.group(1).strip())
 
         except Exception as e:
             error = f"OpenAI API error (likelihood): {e}"
