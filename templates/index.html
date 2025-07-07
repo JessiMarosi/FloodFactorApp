@@ -1,167 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>FloodFactorApp</title>
-  <style>
-    /* Background gradient: bright blue sky */
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to bottom, #87CEEB, #4682B4);
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <title>FloodFactorApp - Flood Facts for Your Area</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #cce7ff, #e6f7ff);
+            padding: 40px;
+            margin: 0;
+        }
 
-    /* White translucent container */
-    .container {
-      background: rgba(255, 255, 255, 0.9);
-      color: #222;
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-      max-width: 450px;
-      width: 100%;
-      text-align: center;
-    }
+        h1 {
+            color: #003366;
+            text-align: center;
+        }
 
-    h1 {
-      margin-bottom: 20px;
-      color: #004080;
-      font-weight: 700;
-    }
+        form {
+            background: white;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
 
-    p a {
-      color: #004080;
-      font-weight: 600;
-      text-decoration: none;
-    }
-    p a:hover {
-      text-decoration: underline;
-    }
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: bold;
+        }
 
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: 600;
-      text-align: left;
-      color: #004080;
-    }
+        input[type="text"], button, input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
 
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1.5px solid #004080;
-      border-radius: 6px;
-      font-size: 16px;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-    }
-    input[type="text"]:focus,
-    input[type="number"]:focus {
-      outline: none;
-      border-color: #1E90FF;
-      box-shadow: 0 0 8px #1E90FF;
-    }
+        input[type="submit"] {
+            background-color: #005cbf;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-    button {
-      margin-top: 25px;
-      background-color: #004080;
-      color: white;
-      padding: 12px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 700;
-      width: 100%;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #1E90FF;
-    }
+        input[type="submit"]:hover {
+            background-color: #004494;
+        }
 
-    .explanation {
-      margin-top: 30px;
-      background: #f0f8ff;
-      padding: 15px;
-      border-radius: 8px;
-      color: #004080;
-      text-align: left;
-      white-space: pre-wrap;
-      max-height: 300px;
-      overflow-y: auto;
-      box-shadow: inset 0 0 10px rgba(30, 144, 255, 0.2);
-    }
+        .output-box {
+            background-color: #ffffff;
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            white-space: pre-wrap;
+        }
 
-    .error {
-      margin-top: 20px;
-      color: #b22222;
-      font-weight: 600;
-    }
+        .location-btn {
+            background-color: #4CAF50;
+            color: white;
+            margin-top: 10px;
+            font-weight: bold;
+        }
 
-    /* Likelihood rating style */
-    .likelihood {
-      margin-top: 20px;
-      background: #dceeff;
-      padding: 15px;
-      border-radius: 8px;
-      color: #003366;
-      text-align: left;
-      box-shadow: inset 0 0 10px rgba(30, 144, 255, 0.3);
-    }
-    .likelihood h3 {
-      margin-top: 0;
-      font-weight: 700;
-    }
-  </style>
+        .location-btn:hover {
+            background-color: #3e8e41;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
     <h1>FloodFactorApp - Flood Facts for Your Area</h1>
+    <form method="post">
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" name="latitude" placeholder="e.g. 27.9506" required>
 
-    <p>
-      Need your coordinates? Use this tool: 
-      <a href="https://www.latlong.net/" target="_blank" rel="noopener noreferrer">Find Latitude & Longitude</a>
-    </p>
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" name="longitude" placeholder="e.g. -82.4572" required>
 
-    <form method="post" novalidate>
-      <label for="latitude">Latitude:</label>
-      <input type="text" id="latitude" name="latitude" placeholder="e.g. 27.9506" required />
+        <button type="button" class="location-btn" onclick="autofillLocation()">Use My Location</button>
 
-      <label for="longitude">Longitude:</label>
-      <input type="text" id="longitude" name="longitude" placeholder="e.g. -82.4572" required />
+        <label for="depth">Flood Depth (feet):</label>
+        <input type="text" id="depth" name="depth" placeholder="e.g. 5.0" required>
 
-      <label for="depth">Flood Depth (feet):</label>
-      <input type="number" id="depth" name="depth" step="0.1" placeholder="e.g. 5.0" required />
-
-      <button type="submit">Get the Facts Now!</button>
+        <input type="submit" value="Get the Facts Now!">
     </form>
 
+    {% if error %}
+        <div class="output-box error">{{ error }}</div>
+    {% endif %}
+
     {% if explanation %}
-      <div class="explanation">
-        <h2>Flood Risk Explanation:</h2>
-        <p>{{ explanation | safe }}</p>
-      </div>
+        <div class="output-box">
+            <h2>Flood Risk Explanation:</h2>
+            <p>{{ explanation }}</p>
+        </div>
     {% endif %}
 
     {% if likelihood_rating is not none %}
-      <div class="likelihood">
-        <h3>Flood Likelihood Rating: {{ likelihood_rating }} / 5</h3>
-        <p>{{ likelihood_explanation }}</p>
-      </div>
+        <div class="output-box">
+            <h2>Flood Likelihood Rating: {{ likelihood_rating }} / 5</h2>
+            {% if likelihood_explanation %}
+                <p>{{ likelihood_explanation }}</p>
+            {% endif %}
+        </div>
     {% endif %}
 
-    {% if error %}
-      <div class="error">{{ error }}</div>
-    {% endif %}
-  </div>
+    <script>
+        function autofillLocation() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        document.getElementById("latitude").value = position.coords.latitude.toFixed(6);
+                        document.getElementById("longitude").value = position.coords.longitude.toFixed(6);
+                    },
+                    function(error) {
+                        alert("Location access denied or unavailable. You can still enter coordinates manually.");
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        }
+    </script>
 </body>
 </html>
 
