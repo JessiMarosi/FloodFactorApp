@@ -1,46 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ... your existing head content unchanged ... -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FloodFactorApp - Flood Risk Checker</title>
+    <style>
+        /* Background and body */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #87ceeb, #b0e0e6); /* sky blue gradient */
+            margin: 0;
+            padding: 2em 1em;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            color: #003366;
+        }
+
+        /* Container to center content and limit width */
+        .container {
+            background: white;
+            padding: 2em 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.2em;
+            color: #0059b3;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+        }
+
+        /* Location prompt styling */
+        #location-prompt {
+            text-align: center;
+            margin-bottom: 1.5em;
+            font-size: 1.1em;
+        }
+        #location-prompt p {
+            margin-bottom: 0.6em;
+            font-weight: 600;
+        }
+        #allow-location-btn,
+        #locate-link {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 0.55em 1.3em;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+            user-select: none;
+            text-decoration: none;
+        }
+        #allow-location-btn:hover,
+        #locate-link:hover {
+            background-color: #005fa3;
+            text-decoration: none;
+            color: white;
+        }
+        #locate-link {
+            background-color: transparent;
+            color: #007acc;
+            padding: 0;
+            margin-left: 0.4em;
+            border-radius: 0;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        #locate-link:hover {
+            text-decoration: underline;
+            background: none;
+            color: #005fa3;
+        }
+
+        /* Form styling */
+        form {
+            display: none;
+            margin-bottom: 1.5em;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            font-size: 1em;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 0.5em 0.75em;
+            margin-bottom: 1.2em;
+            border: 1.8px solid #a0c4ff;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #007acc;
+            box-shadow: 0 0 6px #66aaff88;
+        }
+
+        button[type="submit"] {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 0.75em 1.6em;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 700;
+            width: 100%;
+            transition: background-color 0.3s ease;
+            letter-spacing: 0.03em;
+        }
+        button[type="submit"]:hover {
+            background-color: #005fa3;
+        }
+
+        /* Error message styling */
+        .error {
+            background-color: #ffe0e0;
+            border: 1.5px solid #ff6b6b;
+            color: #9b1c1c;
+            padding: 1em 1.2em;
+            border-radius: 8px;
+            margin-bottom: 1.5em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Result box styling */
+        .result {
+            background-color: #e1f0ff;
+            border-left: 8px solid #007acc;
+            padding: 1.3em 1.5em;
+            border-radius: 8px;
+            margin-bottom: 1.5em;
+            white-space: pre-wrap;
+            font-size: 1.05em;
+            line-height: 1.4;
+            color: #003366;
+        }
+    </style>
 </head>
 <body>
-    <h1>FloodFactorApp - Flood Risk Checker</h1>
-    {% if error %}
-    <div class="error">{{ error }}</div>
-    {% endif %}
+    <div class="container">
+        <h1>FloodFactorApp - Flood Risk Checker</h1>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
 
-    <div id="location-prompt">
-        <p>Would you like to allow this site to auto-fill your location?</p>
-        <button id="allow-location-btn">Yes, get my location</button>
-        <span> or </span>
-        <a id="locate-link">Find my location manually</a>
+        <div id="location-prompt">
+            <p>Would you like to allow this site to auto-fill your location?</p>
+            <button id="allow-location-btn">Yes, get my location</button>
+            <span> or </span>
+            <a id="locate-link">Find my location manually</a>
+        </div>
+
+        <form method="POST" action="/" id="flood-form">
+            <label for="latitude">Latitude:</label>
+            <input type="text" id="latitude" name="latitude" placeholder="e.g. 27.964157" required />
+
+            <label for="longitude">Longitude:</label>
+            <input type="text" id="longitude" name="longitude" placeholder="e.g. -82.452606" required />
+
+            <label for="depth">Flood Depth (feet):</label>
+            <input type="number" step="0.1" id="depth" name="depth" placeholder="e.g. 3.5" required />
+
+            <button type="submit">Get Flood Facts Now!</button>
+        </form>
+
+        {% if explanation %}
+        <div class="result">
+            <h2>Flood Explanation</h2>
+            <p>{{ explanation }}</p>
+        </div>
+        {% endif %}
+
+        {% if likelihood_explanation %}
+        <div class="result">
+            <p>{{ likelihood_explanation }}</p>
+        </div>
+        {% endif %}
     </div>
-
-    <form method="POST" action="/" style="display:none;" id="flood-form">
-        <label for="latitude">Latitude:</label>
-        <input type="text" id="latitude" name="latitude" placeholder="e.g. 27.964157" required />
-
-        <label for="longitude">Longitude:</label>
-        <input type="text" id="longitude" name="longitude" placeholder="e.g. -82.452606" required />
-
-        <label for="depth">Flood Depth (feet):</label>
-        <input type="number" step="0.1" id="depth" name="depth" placeholder="e.g. 3.5" required />
-
-        <button type="submit">Get Flood Facts Now!</button>
-    </form>
-
-    {% if explanation %}
-    <div class="result">
-        <h2>Flood Explanation</h2>
-        <p>{{ explanation }}</p>
-    </div>
-    {% endif %}
-
-    {% if likelihood_explanation %}
-    <div class="result">
-        <p>{{ likelihood_explanation }}</p>
-    </div>
-    {% endif %}
 
 <script>
   const allowBtn = document.getElementById('allow-location-btn');
