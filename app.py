@@ -28,14 +28,30 @@ def clean_redundant_phrases(text):
         text = re.sub(pattern, r"\1", text, flags=re.IGNORECASE | re.DOTALL)
     return text.strip()
 
-def generate_flood_risk_text(zip_code, user_depth, known_depth, probability):
+def probability_to_score(prob):
+    """
+    Convert flood annual probability to a 0-5 likelihood score.
+    """
+    if prob < 0.001:
+        return 0
+    elif prob < 0.005:
+        return 1
+    elif prob < 0.01:
+        return 2
+    elif prob < 0.02:
+        return 3
+    elif prob < 0.05:
+        return 4
+    else:
+        return 5
+
+def generate_flood_risk_text(zip_code, user_depth, probability, likelihood_score):
     prompt = (
-        f"You are a flood risk expert. The user is asking about a flood depth of {user_depth} feet "
-        f"in ZIP code {zip_code}. The known modeled flood depth is {known_depth} feet with a "
-        f"{probability * 100:.1f}% annual chance of occurring.\n\n"
-        "If the user depth is higher than the modeled value, mention this and explain that your answer "
-        "is based on the known depth. Then describe the likely impact of flooding at that depth "
-        "on residents, homes, and travel. Avoid redundant phrasing. Be concise but informative."
+        f"You are a flood risk expert. The user asks about a flood depth of {user_depth} feet "
+        f"in ZIP code {zip_code}. The flood has a likelihood score of {likelihood_score} out of 5 "
+        f"based on historical data.\n\n"
+        "Describe the likely impact of flooding at this depth on residents, homes, and travel. "
+        "Avoid redundant phrasing. Be concise but informative."
     )
 
     response = openai.ChatCompletion.create(
@@ -52,7 +68,7 @@ def generate_flood_risk_text(zip_code, user_depth, known_depth, probability):
 def index():
     explanation = None
     error = None
-    adjusted_depth = False
+    adjusted_depth = False  # Keep for compatibility; not used in prompt anymore
 
     if request.method == "POST":
         zip_code = request.form.get("zip_code", "").strip()
@@ -62,13 +78,14 @@ def index():
             requested_depth = float(requested_depth)
         except (ValueError, TypeError):
             error = "Please enter a valid number for flood depth."
-            return render_template("index.html", explanation=explanation, error=error)
+            return render_template("index.html", explanation=explanation, error=error, adjusted_depth=adjusted_depth)
 
         data = flood_data.get(zip_code)
         if data:
-            adjusted_depth = requested_depth > data["depth"]
+            adjusted_depth = requested_depth > data["depth"]  # Optional to keep
+            likelihood_score = probability_to_score(data["probability"])
             explanation = generate_flood_risk_text(
-                zip_code, requested_depth, data["depth"], data["probability"]
+                zip_code, requested_depth, data["probability"], likelihood_score
             )
         else:
             error = f"No flood data available for ZIP code {zip_code}."
