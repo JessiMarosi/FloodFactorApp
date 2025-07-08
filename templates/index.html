@@ -219,7 +219,7 @@
     {% if explanation %}
     <div class="result">
       <h2>Flood Explanation</h2>
-      <p>{{ explanation }}</p>
+      <p>{{ explanation|safe }}</p>
     </div>
     {% endif %}
 
@@ -234,7 +234,7 @@
       <h2>Weather Alerts</h2>
       <ul>
         {% for alert in alerts %}
-          <li><strong>{{ alert.event }}</strong>: {{ alert.description }}</li>
+          <li><strong>{{ alert.title }}</strong>: {{ alert.description }}</li>
         {% endfor %}
       </ul>
     </div>
