@@ -194,6 +194,17 @@
       <p><strong>Flood Likelihood Rating:</strong> {{ likelihood_rating }} / 5</p>
     </div>
     {% endif %}
+
+    {% if alerts %}
+    <div class="result">
+      <h2>Weather Alerts</h2>
+      <ul>
+        {% for alert in alerts %}
+          <li><strong>{{ alert.event }}</strong>: {{ alert.description }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
   </div>
 
   <script>

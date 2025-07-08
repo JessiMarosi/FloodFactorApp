@@ -9,10 +9,7 @@ print(f"Starting FloodFactorApp in process id: {os.getpid()}, args: {sys.argv}")
 
 app = Flask(__name__)
 
-# Your OpenAI API key setup
 openai.api_key = os.getenv("OPENAI_API_KEY") or "your-api-key-here"
-
-# Google Custom Search API setup
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or "your-google-api-key-here"
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID") or "your-google-cse-id-here"
 
@@ -35,13 +32,35 @@ def get_fema_flood_data(lat, lon):
             return {
                 "flood_zone": attributes.get("FLD_ZONE"),
                 "bfe": attributes.get("STATIC_BFE"),
-                "sfha": attributes.get("SFHA_TF")  # "T" or "F"
+                "sfha": attributes.get("SFHA_TF")
             }
         else:
             return None
     except Exception as e:
         print(f"Error fetching FEMA flood data: {e}")
         return None
+
+def get_weather_alerts(lat, lon):
+    try:
+        url = f"https://api.weather.gov/alerts/active?point={lat},{lon}"
+        headers = {"User-Agent": "FloodFactorApp (example@example.com)"}
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        alerts = [
+            {
+                "title": alert.get("properties", {}).get("headline"),
+                "description": alert.get("properties", {}).get("description"),
+                "severity": alert.get("properties", {}).get("severity"),
+                "area": alert.get("properties", {}).get("areaDesc"),
+            }
+            for alert in data.get("features", [])
+            if "Flood" in alert.get("properties", {}).get("event", "")
+        ]
+        return alerts
+    except Exception as e:
+        print(f"Error fetching weather alerts: {e}")
+        return []
 
 def clean_markdown(text):
     if not text:
@@ -53,20 +72,19 @@ def clean_markdown(text):
     return text.strip()
 
 def google_search(query, num_results=10):
-    search_url = "https://www.googleapis.com/customsearch/v1"
-    params = {
-        "key": GOOGLE_API_KEY,
-        "cx": GOOGLE_CSE_ID,
-        "q": query,
-        "num": num_results,
-    }
     try:
-        resp = requests.get(search_url, params=params)
-        resp.raise_for_status()
+        resp = requests.get(
+            "https://www.googleapis.com/customsearch/v1",
+            params={
+                "key": GOOGLE_API_KEY,
+                "cx": GOOGLE_CSE_ID,
+                "q": query,
+                "num": num_results,
+            }
+        )
         results = resp.json()
         items = results.get("items", [])
-        titles = [item.get("title") for item in items if "title" in item]
-        return titles
+        return [item.get("title") for item in items if "title" in item]
     except Exception as e:
         print(f"Google Search API error: {e}")
         return []
@@ -76,7 +94,7 @@ def index():
     explanation = None
     error = None
     likelihood_rating = None
-    likelihood_explanation = None
+    alerts = []
 
     if request.method == "POST":
         lat_str = request.form.get("latitude", "").strip()
@@ -92,6 +110,7 @@ def index():
             return render_template("index.html", explanation=None, error=error)
 
         fema_data = get_fema_flood_data(lat, lon)
+        alerts = get_weather_alerts(lat, lon)
 
         if not fema_data:
             base_prompt = (
@@ -126,41 +145,28 @@ def index():
             search_query = f"historical flood events near {lat},{lon}"
             titles = google_search(search_query, num_results=10)
             unique_titles = list(set(titles[:10]))
-            event_count = len(unique_titles)
 
             likelihood_prompt = (
                 f"A user at latitude {lat} and longitude {lon} is concerned about a flood depth of {user_depth} feet.\n"
                 f"FEMA flood zone: {fema_data['flood_zone'] if fema_data else 'unknown'}.\n"
                 f"Base Flood Elevation (BFE): {fema_data['bfe'] if fema_data else 'unknown'} feet.\n"
                 f"Special Flood Hazard Area: {'Yes' if fema_data and fema_data['sfha'] == 'T' else 'No or unknown'}.\n\n"
-                f"Below are {event_count} historical flood-related news articles about this location:\n"
+                f"Below are {len(unique_titles)} historical flood-related news articles about this location:\n"
                 + "\n".join(f"- {title}" for title in unique_titles) +
-                "\n\nBased on these real flood events and the given flood depth, rate the likelihood of such a flood occurring on a scale from 0 to 5 where:\n"
-                "0 = Highly unlikely\n"
-                "1 = Unlikely\n"
-                "2 = Possible\n"
-                "3 = Likely\n"
-                "4 = Highly likely\n"
-                "5 = Definitive\n\n"
-                "Return ONLY the number rating (0-5), followed by a brief explanation (1-2 sentences). Format your response as:\n"
-                "Rating: X\nExplanation: your explanation here"
+                "\n\nBased on this, return ONLY the number rating (0–5) of flood likelihood at this location. Format: Rating: X"
             )
 
             response2 = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": likelihood_prompt}],
                 temperature=0,
-                max_tokens=150,
+                max_tokens=50,
             )
 
             rating_text = response2.choices[0].message.content.strip()
-            rating_match = re.search(r"Rating:\s*([0-5])", rating_text)
-            explanation_match = re.search(r"Explanation:\s*(.*)", rating_text, re.DOTALL)
-
-            if rating_match:
-                likelihood_rating = int(rating_match.group(1))
-            if explanation_match:
-                likelihood_explanation = clean_markdown(explanation_match.group(1).strip())
+            match = re.search(r"Rating:\s*([0-5])", rating_text)
+            if match:
+                likelihood_rating = int(match.group(1))
 
         except Exception as e:
             error = f"OpenAI API error (likelihood): {e}"
@@ -170,9 +176,8 @@ def index():
         explanation=explanation,
         error=error,
         likelihood_rating=likelihood_rating,
-        likelihood_explanation=likelihood_explanation,
+        alerts=alerts
     )
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
