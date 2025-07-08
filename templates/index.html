@@ -37,6 +37,7 @@
       text-align: center;
       margin-bottom: 1.5em;
       font-size: 1.1em;
+      position: relative;
     }
 
     #location-prompt p {
@@ -156,8 +157,8 @@
     /* Spinner CSS */
     #loading-spinner {
       display: none;
+      margin-top: 1em;
       text-align: center;
-      margin-bottom: 1.5em;
     }
     .spinner {
       border: 6px solid #e0e0e0;
@@ -166,7 +167,7 @@
       width: 40px;
       height: 40px;
       animation: spin 1s linear infinite;
-      margin: 0 auto 1em auto;
+      margin: 0 auto 0.5em auto;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -187,6 +188,12 @@
       <button id="allow-location-btn">Yes, get my location</button>
       <span> or </span>
       <a id="locate-link">Find my location manually</a>
+
+      <!-- Spinner shown while obtaining location -->
+      <div id="loading-spinner">
+        <div class="spinner"></div>
+        <p>Obtaining your location, please wait...</p>
+      </div>
     </div>
 
     <form method="POST" action="/" id="flood-form">
@@ -201,12 +208,6 @@
 
       <button type="submit">Get Flood Facts Now!</button>
     </form>
-
-    <!-- Loading spinner -->
-    <div id="loading-spinner">
-      <div class="spinner"></div>
-      <p>Analyzing flood data, please wait...</p>
-    </div>
 
     {% if explanation %}
     <div class="result">
@@ -241,12 +242,15 @@
     const spinner = document.getElementById('loading-spinner');
 
     function showForm() {
+      spinner.style.display = 'none';
       locationPrompt.style.display = 'none';
       form.style.display = 'block';
     }
 
     allowBtn.addEventListener('click', () => {
       if (navigator.geolocation) {
+        spinner.style.display = 'block'; // show spinner but keep prompt visible
+
         navigator.geolocation.getCurrentPosition(
           (position) => {
             document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
@@ -255,6 +259,7 @@
           },
           (error) => {
             alert('Unable to retrieve your location. Please enter coordinates manually.');
+            spinner.style.display = 'none'; // hide spinner on error
             showForm();
           }
         );
