@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Markup  # <-- Added Markup
 import openai
 import os
 import sys
@@ -41,6 +41,7 @@ def get_fema_flood_data(lat, lon):
         return None
 
 def get_weather_alerts(lat, lon):
+    # Keep this if you want local alerts elsewhere, but for banner we use nationwide alerts.
     try:
         url = f"https://api.weather.gov/alerts/active?point={lat},{lon}"
         headers = {"User-Agent": "FloodFactorApp (example@example.com)"}
@@ -49,7 +50,8 @@ def get_weather_alerts(lat, lon):
         data = response.json()
         alerts = [
             {
-                "title": alert.get("properties", {}).get("headline"),
+                "event": alert.get("properties", {}).get("event"),
+                "headline": alert.get("properties", {}).get("headline"),
                 "description": alert.get("properties", {}).get("description"),
                 "severity": alert.get("properties", {}).get("severity"),
                 "area": alert.get("properties", {}).get("areaDesc"),
@@ -62,6 +64,35 @@ def get_weather_alerts(lat, lon):
         print(f"Error fetching weather alerts: {e}")
         return []
 
+# ✅ New function: fetch nationwide severe weather alerts for marquee banner
+def get_nws_severe_alerts():
+    try:
+        url = "https://api.weather.gov/alerts/active"
+        headers = {"User-Agent": "FloodFactorApp (example@example.com)"}
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        # List of severe alert event types to show
+        severe_events = [
+            "Severe Thunderstorm Warning",
+            "Tornado Warning",
+            "Flood Warning",
+            "Flash Flood Warning",
+            "Hurricane Warning",
+            "Storm Surge Warning",
+            "Extreme Wind Warning",
+            "High Wind Warning"
+        ]
+        alerts = [
+            alert.get("properties", {}).get("headline")
+            for alert in data.get("features", [])
+            if alert.get("properties", {}).get("event") in severe_events
+        ]
+        return alerts
+    except Exception as e:
+        print(f"Error fetching NWS severe alerts: {e}")
+        return []
+
 def clean_markdown(text):
     if not text:
         return ""
@@ -70,6 +101,14 @@ def clean_markdown(text):
     text = re.sub(r'^\s*-\s*', '', text, flags=re.MULTILINE)
     text = re.sub(r'\n{2,}', '\n\n', text)
     return text.strip()
+
+# ✅ New: Format output for better readability
+def format_explanation(text):
+    if not text:
+        return ""
+    text = re.sub(r'\n(?=\w)', '\n\n', text)  # Add spacing
+    text = re.sub(r'(^|\n)([^:\n]+:)', r'\1<strong>\2</strong>', text)  # Bold section headers
+    return Markup(text.replace('\n', '<br>'))  # Convert newlines to <br> for HTML
 
 def google_search(query, num_results=10):
     try:
@@ -94,7 +133,8 @@ def index():
     explanation = None
     error = None
     likelihood_rating = None
-    alerts = []
+    local_alerts = []
+    nws_severe_alerts = get_nws_severe_alerts()  # Get nationwide severe alerts for marquee banner
 
     if request.method == "POST":
         lat_str = request.form.get("latitude", "").strip()
@@ -107,10 +147,10 @@ def index():
             user_depth = float(depth_str)
         except ValueError:
             error = "Please enter valid numbers for latitude, longitude, and flood depth."
-            return render_template("index.html", explanation=None, error=error)
+            return render_template("index.html", explanation=None, error=error, alerts=[], likelihood_rating=None, nws_alerts=nws_severe_alerts)
 
         fema_data = get_fema_flood_data(lat, lon)
-        alerts = get_weather_alerts(lat, lon)
+        local_alerts = get_weather_alerts(lat, lon)  # Local alerts for detailed display
 
         if not fema_data:
             base_prompt = (
@@ -136,10 +176,11 @@ def index():
                 max_tokens=500,
             )
             explanation_raw = response.choices[0].message.content.strip()
-            explanation = clean_markdown(explanation_raw)
+            cleaned_explanation = clean_markdown(explanation_raw)
+            explanation = format_explanation(cleaned_explanation)
         except Exception as e:
             error = f"OpenAI API error (explanation): {e}"
-            return render_template("index.html", explanation=None, error=error)
+            return render_template("index.html", explanation=None, error=error, alerts=[], likelihood_rating=None, nws_alerts=nws_severe_alerts)
 
         try:
             search_query = f"historical flood events near {lat},{lon}"
@@ -176,7 +217,8 @@ def index():
         explanation=explanation,
         error=error,
         likelihood_rating=likelihood_rating,
-        alerts=alerts
+        alerts=local_alerts,           # local alerts for detailed display
+        nws_alerts=nws_severe_alerts  # nationwide alerts for marquee banner
     )
 
 if __name__ == "__main__":

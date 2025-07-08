@@ -14,6 +14,33 @@
       justify-content: center;
       min-height: 100vh;
       color: #003366;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Marquee banner */
+    #nws-marquee {
+      background-color: #ff4d4d;
+      color: white;
+      font-weight: 700;
+      padding: 0.7em 0;
+      width: 100vw;
+      overflow: hidden;
+      white-space: nowrap;
+      box-sizing: border-box;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+    #nws-marquee span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: marquee 30s linear infinite;
+    }
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
     }
 
     .container {
@@ -23,6 +50,7 @@
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
       max-width: 600px;
       width: 100%;
+      margin-top: 3em; /* to avoid marquee overlap */
     }
 
     h1 {
@@ -177,6 +205,16 @@
   </style>
 </head>
 <body>
+  {% if nws_alerts and nws_alerts|length > 0 %}
+  <div id="nws-marquee" role="region" aria-label="National Severe Weather Alerts">
+    <span>
+      {% for alert in nws_alerts %}
+        ⚠️ {{ alert }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      {% endfor %}
+    </span>
+  </div>
+  {% endif %}
+
   <div class="container">
     <h1>FloodFactorApp - Flood Risk Checker</h1>
 
@@ -234,7 +272,7 @@
       <h2>Weather Alerts</h2>
       <ul>
         {% for alert in alerts %}
-          <li><strong>{{ alert.title }}</strong>: {{ alert.description }}</li>
+          <li><strong>{{ alert.event }}</strong>: {{ alert.description }}</li>
         {% endfor %}
       </ul>
     </div>
