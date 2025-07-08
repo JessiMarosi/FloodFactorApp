@@ -181,7 +181,6 @@
       color: #003366;
     }
 
-    /* Spinner CSS */
     .spinner-container {
       display: none;
       text-align: center;
@@ -228,7 +227,6 @@
       <span> or </span>
       <a id="locate-link">Find my location manually</a>
 
-      <!-- Spinner while obtaining location -->
       <div id="location-spinner" class="spinner-container">
         <div class="spinner"></div>
         <p>Obtaining your location, please wait...</p>
@@ -247,23 +245,22 @@
 
       <button type="submit">Get Flood Facts Now!</button>
 
-      <!-- Spinner while AI is analyzing -->
       <div id="ai-spinner" class="spinner-container">
         <div class="spinner"></div>
         <p>Analyzing flood data, please wait...</p>
       </div>
     </form>
 
+    {% if likelihood_rating is not none %}
+    <div class="result">
+      <p><strong>Flood Likelihood Rating:</strong> {{ likelihood_rating }} / 5</p>
+    </div>
+    {% endif %}
+
     {% if explanation %}
     <div class="result">
       <h2>Flood Explanation</h2>
       <p>{{ explanation|safe }}</p>
-    </div>
-    {% endif %}
-
-    {% if likelihood_rating is not none %}
-    <div class="result">
-      <p><strong>Flood Likelihood Rating:</strong> {{ likelihood_rating }} / 5</p>
     </div>
     {% endif %}
 
