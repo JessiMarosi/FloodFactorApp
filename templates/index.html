@@ -152,6 +152,26 @@
       line-height: 1.4;
       color: #003366;
     }
+
+    /* Spinner CSS */
+    #loading-spinner {
+      display: none;
+      text-align: center;
+      margin-bottom: 1.5em;
+    }
+    .spinner {
+      border: 6px solid #e0e0e0;
+      border-top: 6px solid #007acc;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1em auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -181,6 +201,12 @@
 
       <button type="submit">Get Flood Facts Now!</button>
     </form>
+
+    <!-- Loading spinner -->
+    <div id="loading-spinner">
+      <div class="spinner"></div>
+      <p>Analyzing flood data, please wait...</p>
+    </div>
 
     {% if explanation %}
     <div class="result">
@@ -212,6 +238,7 @@
     const locateLink = document.getElementById('locate-link');
     const form = document.getElementById('flood-form');
     const locationPrompt = document.getElementById('location-prompt');
+    const spinner = document.getElementById('loading-spinner');
 
     function showForm() {
       locationPrompt.style.display = 'none';
@@ -239,6 +266,11 @@
 
     locateLink.addEventListener('click', () => {
       showForm();
+    });
+
+    // Show spinner on form submit
+    form.addEventListener('submit', () => {
+      spinner.style.display = 'block';
     });
   </script>
 </body>
