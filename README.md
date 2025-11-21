@@ -39,5 +39,5 @@ Trademark pending. Do not reproduce without permission.
 
 ## 🙋‍♀️ About the Creator
 
-Jessica S. Marosi is the founder of Bytelock™ and inventor of ChainLogic™, a forensic-grade digital chain-of-custody system.  
+Jessica S. Marosi is the founder of Bytelock™ and inventor of ChainLogic™ and the FloodFactor™ app, a forensic-grade digital chain-of-custody system.  
 FloodFactorApp is part of her mission to build defensible, scalable platforms for public safety and environmental awareness.
