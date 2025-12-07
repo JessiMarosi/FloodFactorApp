@@ -41,6 +41,8 @@ FloodFactorApp/
 ├── LICENSE            # MIT license for public use and adaptation
 └── README.md          # Project overview, usage instructions, and recruiter-facing notes
 
+---
+
 ## 🧪 How to Use
 
 Visit the live app: [https://floodfactorapp.onrender.com/](https://floodfactorapp.onrender.com/)
