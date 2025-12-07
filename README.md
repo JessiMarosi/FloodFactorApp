@@ -40,6 +40,7 @@ FloodFactorApp/
 ├── .gitignore         # Excludes sensitive and platform-specific clutter
 ├── LICENSE            # MIT license for public use and adaptation
 └── README.md          # Project overview, usage instructions, and recruiter-facing notes
+All sensitive files, cached artifacts, and backups are excluded via .gitignore.
 
 ---
 
