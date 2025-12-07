@@ -23,67 +23,67 @@ Designed to demonstrate reproducible overlays, jurisdictional routing, and commu
 
 ---
 
-🧩 Platform Overview
-All sensitive files, cached artifacts, and backups are excluded via .gitignore.
+**##🧩 Platform Overview**
+- All sensitive files, cached artifacts, and backups are excluded via .gitignore.
 
 --
 
-⚙️ Components
-Data Ingestion: Python scripts pulling NOAA/NWS flood data
+##⚙️ Components
+- Data Ingestion: Python scripts pulling NOAA/NWS flood data
 
-Templates: Jinja2 HTML templates for rendering civic dashboards
+- Templates: Jinja2 HTML templates for rendering civic dashboards
 
-Overlays: Real‑time flood maps with location‑based depth analysis
+- Overlays: Real‑time flood maps with location‑based depth analysis
 
-Evidence: Logs and screenshots validating overlay accuracy
+- Evidence: Logs and screenshots validating overlay accuracy
 
-Pages: Public-facing dashboards accessible via FloodFactorApp
+- Pages: Public-facing dashboards accessible via FloodFactorApp
 
 --
 
-🔒 Safety
-No API keys or secrets are stored in this repository
+**##🔒 Safety**
+- No API keys or secrets are stored in this repository
 
-Use environment‑specific vaults or placeholders for sensitive data
+- Use environment‑specific vaults or placeholders for sensitive data
 
 Cached files, backups, and evidence artifacts are ignored via .gitignore
 
 --
 
-📌 Next Steps
-Expand overlays to include storm surge and rainfall models
+##📌 Next Steps
+- Expand overlays to include storm surge and rainfall models
 
-Integrate telemetry into dashboards for real‑time alerts
+- Integrate telemetry into dashboards for real‑time alerts
 
-Automate evidence collection for recruiter‑facing reproducibility
+- Automate evidence collection for recruiter‑facing reproducibility
 
-Add jurisdictional routing for multi‑county deployments
-
---
-
-🧪 Lab Status
-Python ingestion scripts merged and validated
-
-Civic dashboard templates staged
-
-Evidence folders initialized
-
-Backup artifacts archived
-
-Public deployment live with location‑based flood depth analysis
+- Add jurisdictional routing for multi‑county deployments
 
 --
 
-⚖️ Legal
-This repository is provided under the MIT License for public use and adaptation
+##🧪 Lab Status
+- Python ingestion scripts merged and validated
 
-All civic data sources (NOAA/NWS) remain property of their respective agencies
+- Civic dashboard templates staged
 
-No proprietary or sensitive information is stored in this repository
+- Evidence folders initialized
 
-Use of this code and dashboards must comply with applicable local, state, and federal regulations
+- Backup artifacts archived
 
-This project is intended for educational, civic, and research purposes only
+- Public deployment live with location‑based flood depth analysis
+
+--
+
+**##⚖️ Legal**
+- This repository is provided under the MIT License for public use and adaptation
+
+- All civic data sources (NOAA/NWS) remain property of their respective agencies
+
+- No proprietary or sensitive information is stored in this repository
+
+- Use of this code and dashboards must comply with applicable local, state, and federal regulations
+
+- This project is intended for educational, civic, and research purposes only
 
 ---
 
