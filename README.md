@@ -25,16 +25,21 @@ FloodFactorApp is a real-time flood risk checker that combines geolocation, Nati
 
 ## 📁 Repository Structure
 
-```plaintext
 FloodFactorApp/
-├── Docs/                  # Setup guides, deployment notes, reports
-├── Configs/               # App configuration and flood dataset
-├── Scripts/               # Automation and analysis scripts
-├── Evidence/              # Screenshots and deployment logs
-├── Images/                # UI assets
-├── Diagrams/              # Architecture and workflow diagrams
-├── Pages/                 # GitHub Pages deployment files
-└── README.md              # This file
+├── Configs/           # Environmental configs, API keys (excluded), and jurisdictional routing logic
+├── Diagrams/          # Flood modeling diagrams, overlay flowcharts, and system architecture visuals
+├── Docs/              # Civic documentation, SOPs, and public safety alignment guides
+├── Evidence/          # Screenshots, logs, and validation artifacts from flood analysis runs
+├── Images/            # Visual assets used in dashboards and overlays
+├── Pages/             # Public-facing HTML pages and civic dashboard mockups
+├── Scripts/           # Python scripts for flood modeling, data ingestion, and overlay generation
+├── __pycache__/       # Auto-generated Python cache files (ignored via `.gitignore`)
+├── backup/            # Archived versions of templates and dashboards
+├── templates/         # Jinja2 HTML templates for dynamic rendering
+├── .gitignore         # Excludes sensitive and platform-specific clutter
+├── LICENSE            # MIT license for public use and adaptation
+└── README.md          # Project overview, usage instructions, and recruiter-facing notes
+
 
 ## 🧪 How to Use
 
