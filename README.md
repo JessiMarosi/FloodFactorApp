@@ -40,11 +40,13 @@ FloodFactorApp/
 ├── .gitignore         # Excludes sensitive and platform-specific clutter
 ├── LICENSE            # MIT license for public use and adaptation
 └── README.md          # Project overview, usage instructions, and recruiter-facing notes
-All sensitive files, cached artifacts, and backups are excluded via .gitignore.
 
 ---
 
-⚙️ Components
+#All sensitive files, cached artifacts, and backups are excluded via .gitignore
+
+---
+#⚙️ Components
 Data Ingestion: Python scripts pulling NOAA/NWS flood data
 
 Templates: Jinja2 HTML templates for rendering civic dashboards
@@ -55,14 +57,14 @@ Evidence: Logs and screenshots validating overlay accuracy
 
 Pages: Public-facing dashboards accessible via https://floodfactorapp.onrender.com/
 
-🔒 Safety
+##🔒 Safety
 No API keys or secrets are stored in this repository
 
 Use environment-specific vaults or placeholders for sensitive data
 
 Cached files, backups, and evidence artifacts are ignored via .gitignore
 
-📌 Next Steps
+###📌 Next Steps
 Expand overlays to include storm surge and rainfall models
 
 Integrate telemetry into dashboards for real-time alerts
@@ -71,7 +73,7 @@ Automate evidence collection for recruiter-facing reproducibility
 
 Add jurisdictional routing for multi-county deployments
 
-🧪 Lab Status
+#🧪 Lab Status
 Python ingestion scripts merged and validated
 
 Civic dashboard templates staged
@@ -82,7 +84,7 @@ Backup artifacts archived
 
 Public deployment live with location-based flood depth analysis
 
-⚖️ Legal
+#⚖️ Legal
 This repository is provided under the MIT License for public use and adaptation
 
 All civic data sources (NOAA/NWS) remain property of their respective agencies
