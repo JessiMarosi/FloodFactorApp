@@ -26,7 +26,7 @@ Designed to demonstrate reproducible overlays, jurisdictional routing, and commu
 ## 🏗 Repository Structure
 
 ```plaintext
-FloodFactorApp/
+FloodFactorApp
 ├── Configs/           # Environmental configs, API keys (excluded), and jurisdictional routing logic
 ├── Diagrams/          # Flood modeling diagrams, overlay flowcharts, and system architecture visuals
 ├── Docs/              # Civic documentation, SOPs, and public safety alignment guides
