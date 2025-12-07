@@ -23,12 +23,12 @@ Designed to demonstrate reproducible overlays, jurisdictional routing, and commu
 
 ---
 
-**##🧩 Platform Overview**
+**## 🧩 Platform Overview**
 - All sensitive files, cached artifacts, and backups are excluded via .gitignore.
 
 --
 
-##⚙️ Components
+## ⚙️ Components
 - Data Ingestion: Python scripts pulling NOAA/NWS flood data
 
 - Templates: Jinja2 HTML templates for rendering civic dashboards
@@ -41,7 +41,7 @@ Designed to demonstrate reproducible overlays, jurisdictional routing, and commu
 
 --
 
-**##🔒 Safety**
+**# 🔒 Safety**
 - No API keys or secrets are stored in this repository
 
 - Use environment‑specific vaults or placeholders for sensitive data
@@ -50,7 +50,7 @@ Cached files, backups, and evidence artifacts are ignored via .gitignore
 
 --
 
-##📌 Next Steps
+# 📌 Next Steps
 - Expand overlays to include storm surge and rainfall models
 
 - Integrate telemetry into dashboards for real‑time alerts
@@ -61,7 +61,7 @@ Cached files, backups, and evidence artifacts are ignored via .gitignore
 
 --
 
-##🧪 Lab Status
+# 🧪 Lab Status
 - Python ingestion scripts merged and validated
 
 - Civic dashboard templates staged
@@ -74,7 +74,7 @@ Cached files, backups, and evidence artifacts are ignored via .gitignore
 
 --
 
-**##⚖️ Legal**
+**# ⚖️ Legal**
 - This repository is provided under the MIT License for public use and adaptation
 
 - All civic data sources (NOAA/NWS) remain property of their respective agencies
