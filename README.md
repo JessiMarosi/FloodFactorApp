@@ -2,20 +2,39 @@
 
 FloodFactorApp is a real-time flood risk checker that combines geolocation, National Weather Service alerts, and environmental data to help users assess flood threats in their area. Built for public awareness and emergency preparedness, the app offers both automatic and manual location input, along with live alert streaming.
 
+---
+
 ## 🚀 Features
 
-- 🌐 **Live NWS Alerts** — Displays active flood and wind warnings with severity and expiration.
-- 📍 **Auto-Location Detection** — Users can opt to auto-fill their latitude and longitude.
-- 🧭 **Manual Location Input** — Enter coordinates manually for privacy or precision.
-- 📊 **Flood Depth Analysis** — Returns estimated flood depth in feet.
-- 📰 **Nationwide Alert Marquee** — Scrolls active warnings across the top of the page.
+- 🌐 **Live NWS Alerts** — Displays active flood and wind warnings with severity and expiration  
+- 📍 **Auto-Location Detection** — Users can opt to auto-fill their latitude and longitude  
+- 🧭 **Manual Location Input** — Enter coordinates manually for privacy or precision  
+- 📊 **Flood Depth Analysis** — Returns estimated flood depth in feet  
+- 📰 **Nationwide Alert Marquee** — Scrolls active warnings across the top of the page  
+
+---
 
 ## 📦 Tech Stack
 
-- **Frontend**: HTML templates
-- **Backend**: Python (Flask)
-- **APIs**: Google Search API, NWS Alert Feeds
-- **Hosting**: Render.com
+- **Frontend**: HTML templates  
+- **Backend**: Python (Flask)  
+- **APIs**: Google Search API, NWS Alert Feeds  
+- **Hosting**: Render.com  
+
+---
+
+## 📁 Repository Structure
+
+```plaintext
+FloodFactorApp/
+├── Docs/                  # Setup guides, deployment notes, reports
+├── Configs/               # App configuration and flood dataset
+├── Scripts/               # Automation and analysis scripts
+├── Evidence/              # Screenshots and deployment logs
+├── Images/                # UI assets
+├── Diagrams/              # Architecture and workflow diagrams
+├── Pages/                 # GitHub Pages deployment files
+└── README.md              # This file
 
 ## 🧪 How to Use
 
