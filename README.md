@@ -23,24 +23,6 @@ Designed to demonstrate reproducible overlays, jurisdictional routing, and commu
 
 ---
 
-## 📁 Repository Structure
-
-```plaintext
-FloodFactorApp/
-├── Configs/           # Environmental configs, API keys (excluded), and jurisdictional routing logic
-├── Diagrams/          # Flood modeling diagrams, overlay flowcharts, and system architecture visuals
-├── Docs/              # Civic documentation, SOPs, and public safety alignment guides
-├── Evidence/          # Screenshots, logs, and validation artifacts from flood analysis runs
-├── Images/            # Visual assets used in dashboards and overlays
-├── Pages/             # Public-facing HTML pages and civic dashboard mockups
-├── Scripts/           # Python scripts for flood modeling, data ingestion, and overlay generation
-├── __pycache__/       # Auto-generated Python cache files (ignored via .gitignore)
-├── backup/            # Archived versions of templates and dashboards
-├── templates/         # Jinja2 HTML templates for dynamic rendering
-├── .gitignore         # Excludes sensitive and platform-specific clutter
-├── LICENSE            # MIT license for public use and adaptation
-└── README.md          # Project overview, usage instructions, and recruiter-facing notes
-
 ---
 
 🧩 Platform Overview
@@ -94,3 +76,21 @@ No proprietary or sensitive information is stored in this repository
 Use of this code and dashboards must comply with applicable local, state, and federal regulations
 
 This project is intended for educational, civic, and research purposes only
+
+## 📁 Repository Structure
+
+```plaintext
+FloodFactorApp/
+├── Configs/           # Environmental configs, API keys (excluded), and jurisdictional routing logic
+├── Diagrams/          # Flood modeling diagrams, overlay flowcharts, and system architecture visuals
+├── Docs/              # Civic documentation, SOPs, and public safety alignment guides
+├── Evidence/          # Screenshots, logs, and validation artifacts from flood analysis runs
+├── Images/            # Visual assets used in dashboards and overlays
+├── Pages/             # Public-facing HTML pages and civic dashboard mockups
+├── Scripts/           # Python scripts for flood modeling, data ingestion, and overlay generation
+├── __pycache__/       # Auto-generated Python cache files (ignored via .gitignore)
+├── backup/            # Archived versions of templates and dashboards
+├── templates/         # Jinja2 HTML templates for dynamic rendering
+├── .gitignore         # Excludes sensitive and platform-specific clutter
+├── LICENSE            # MIT license for public use and adaptation
+└── README.md          # Project overview, usage instructions, and recruiter-facing notes
