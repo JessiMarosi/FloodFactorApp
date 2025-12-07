@@ -27,6 +27,8 @@ FloodFactorApp is a real-time flood risk checker that combines geolocation, Nati
 
 ```plaintext
 FloodFactorApp/
+├── Configs/
+...
 ├── Configs/           # Environmental configs, API keys (excluded), and jurisdictional routing logic
 ├── Diagrams/          # Flood modeling diagrams, overlay flowcharts, and system architecture visuals
 ├── Docs/              # Civic documentation, SOPs, and public safety alignment guides
