@@ -43,58 +43,24 @@ FloodFactorApp/
 
 ---
 
-## ⚙️ Components
+## ⚙️ Core Components
 
-- **Data Ingestion**  
-  Python automation pipelines that pull and normalize NOAA/NWS flood data.
-
-- **Templates**  
-  Jinja2 HTML templates used for dynamic dashboard rendering.
-
-- **Overlays**  
-  Real-time map layers providing location-based flood depth analysis.
-
-- **Evidence**  
-  Logs, screenshots, and validation artifacts from model verification runs.
-
-- **Pages**  
-  Public-facing dashboards deployed at:  
-  https://floodfactorapp.onrender.com/
+- **Data Ingestion:** Python pipelines pulling and normalizing NOAA/NWS flood data  
+- **Templates:** Jinja2 HTML templates for dynamic dashboard rendering  
+- **Overlays:** Real-time map layers providing location-based flood depth analysis  
+- **Evidence:** Logs, screenshots, and validation artifacts from model verification runs  
+- **Pages:** Public-facing dashboards for community access and situational awareness  
 
 ---
 
-## 🔒 Safety & Security
+## 💻 How to Use
 
-- No API keys or secrets are stored in the repository  
-- All sensitive values must be managed via environment variables or platform-specific vaults  
-- Cached files, backups, and temporary artifacts are excluded via `.gitignore`  
-- Project aligns with **NIST 800-53** principles where applicable  
+Visit the live version: [FloodFactorApp](https://floodfactorapp.onrender.com/)  
 
----
-
-## 📌 Next Steps (Roadmap)
-
-- Expand overlays to include **storm surge**, **rainfall models**, and multi-hazard hazard layers  
-- Integrate telemetry for **real-time community alerts**  
-- Automate evidence generation for recruiter-facing reproducibility  
-- Add **jurisdictional routing** for multi-county deployments  
+Explore real-time flood overlays, community dashboards, and location-based flood depth analysis directly from your browser — no installation required.
 
 ---
 
-## 🧪 Lab Status
+## ⚖️ License
 
-- Python ingestion scripts merged and validated  
-- Civic dashboard templates staged and functional  
-- Evidence directories initialized  
-- Backup artifacts archived  
-- Public deployment active with real-time, location-based flood depth analysis  
-
----
-
-## ⚖️ Legal & Compliance
-
-- Licensed under the **MIT License** for public use, modification, and distribution  
-- NOAA/NWS data remains property of its respective agencies  
-- No proprietary or sensitive data is stored in this repository  
-- All usage must comply with applicable **local, state, and federal** regulations  
-- Intended for **educational, civic, and research** purposes only  
+MIT License © 2025 Jessica Marosi
