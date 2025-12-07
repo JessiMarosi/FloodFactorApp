@@ -39,8 +39,7 @@ FloodFactorApp/
 ├── templates/         # Jinja2 HTML templates for dynamic rendering
 ├── .gitignore         # Excludes sensitive and platform-specific clutter
 ├── LICENSE            # MIT license for public use and adaptation
-└── README.md          # Project overview, usage instructions, and recruiter-facing notes
-'''
+└── README.md          # Project overview, usage instructions, and recruiter-facing notes'''
 ---
 
 🧩 Platform Overview
