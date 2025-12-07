@@ -43,24 +43,51 @@ FloodFactorApp/
 
 ---
 
-### ⚙️ Core Components
+⚙️ Components
+Data Ingestion: Python scripts pulling NOAA/NWS flood data
 
-- **Data Ingestion:** Python pipelines pulling and normalizing NOAA/NWS flood data  
-- **Templates:** Jinja2 HTML templates for dynamic dashboard rendering  
-- **Overlays:** Real-time map layers providing location-based flood depth analysis  
-- **Evidence:** Logs, screenshots, and validation artifacts from model verification runs  
-- **Pages:** Public-facing dashboards for community access and situational awareness  
+Templates: Jinja2 HTML templates for rendering civic dashboards
 
----
+Overlays: Real‑time flood maps with location‑based depth analysis
 
-## 💻 How to Use
+Evidence: Logs and screenshots validating overlay accuracy
 
-Visit the live version: [FloodFactorApp](https://floodfactorapp.onrender.com/)  
+Pages: Public-facing dashboards accessible via https://floodfactorapp.onrender.com/
 
-Explore real-time flood overlays, community dashboards, and location-based flood depth analysis directly from your browser — no installation required.
+🔒 Safety
+No API keys or secrets are stored in this repository
 
----
+Use environment-specific vaults or placeholders for sensitive data
 
-## ⚖️ License
+Cached files, backups, and evidence artifacts are ignored via .gitignore
 
-MIT License © 2025 Jessica Marosi
+📌 Next Steps
+Expand overlays to include storm surge and rainfall models
+
+Integrate telemetry into dashboards for real-time alerts
+
+Automate evidence collection for recruiter-facing reproducibility
+
+Add jurisdictional routing for multi-county deployments
+
+🧪 Lab Status
+Python ingestion scripts merged and validated
+
+Civic dashboard templates staged
+
+Evidence folders initialized
+
+Backup artifacts archived
+
+Public deployment live with location-based flood depth analysis
+
+⚖️ Legal
+This repository is provided under the MIT License for public use and adaptation
+
+All civic data sources (NOAA/NWS) remain property of their respective agencies
+
+No proprietary or sensitive information is stored in this repository
+
+Use of this code and dashboards must comply with applicable local, state, and federal regulations
+
+This project is intended for educational, civic, and research purposes only
