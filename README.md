@@ -26,7 +26,7 @@ Designed to demonstrate reproducible overlays, jurisdictional routing, and commu
 🧩 Platform Overview
 All sensitive files, cached artifacts, and backups are excluded via .gitignore.
 
----
+--
 
 ⚙️ Components
 Data Ingestion: Python scripts pulling NOAA/NWS flood data
@@ -39,7 +39,7 @@ Evidence: Logs and screenshots validating overlay accuracy
 
 Pages: Public-facing dashboards accessible via FloodFactorApp
 
----
+--
 
 🔒 Safety
 No API keys or secrets are stored in this repository
@@ -48,7 +48,7 @@ Use environment‑specific vaults or placeholders for sensitive data
 
 Cached files, backups, and evidence artifacts are ignored via .gitignore
 
----
+--
 
 📌 Next Steps
 Expand overlays to include storm surge and rainfall models
@@ -59,7 +59,7 @@ Automate evidence collection for recruiter‑facing reproducibility
 
 Add jurisdictional routing for multi‑county deployments
 
----
+--
 
 🧪 Lab Status
 Python ingestion scripts merged and validated
@@ -72,7 +72,7 @@ Backup artifacts archived
 
 Public deployment live with location‑based flood depth analysis
 
----
+--
 
 ⚖️ Legal
 This repository is provided under the MIT License for public use and adaptation
