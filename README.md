@@ -43,7 +43,7 @@ FloodFactorApp/
 
 ---
 
-## ⚙️ Core Components
+### ⚙️ Core Components
 
 - **Data Ingestion:** Python pipelines pulling and normalizing NOAA/NWS flood data  
 - **Templates:** Jinja2 HTML templates for dynamic dashboard rendering  
